@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 include<filament_winder.scad>
 
-render_part(part_to_render = 3);
+render_part(part_to_render = 99);
 
 module render_part(part_to_render) {
 	if (part_to_render == 2) qc_length_rotor();
@@ -35,8 +35,6 @@ module render_part(part_to_render) {
 	if (part_to_render == 7) qc_length(outfeed = false, encoder = false);
 
 	if (part_to_render == 8) qc_mount(assembly = false, mount_template = true);
-
-	if (part_to_render == 9) sensor_shroud();
 
 	if (part_to_render == 10) fan_shroud();
 
@@ -62,6 +60,86 @@ module render_part(part_to_render) {
 }
 
 module sandbox() {
+	difference() {
+		union() {
+			// bracket
+			for (j = [-1, 1])
+				translate([0, j * (l_sensor + pad_sensor) / 2, 0])
+					hull() {
+						translate([-cc_strut_slots / 2, 0, 0])
+							rotate([90, 0, 0])
+								cylinder(r = d_sensor_threaded_rod / 2 + 4, h = pad_sensor, center = true);
+				
+						translate([-(l_light_path - t_sensor_mount) / 2, 0, offset_sensor - (w_sensor / 2 + pad_sensor) + 0.5])
+							cube([t_sensor + t_sensor_mount, pad_sensor, 1], center = true);
 
+						translate([-cc_strut_slots / 2 + d_sensor_threaded_rod / 2 + 2 , 0, offset_sensor - (w_sensor / 2 + pad_sensor) + 0.5])
+							cube([4, pad_sensor, 1], center = true);
+					}
 
+			for (j = [-1, 1])
+				translate([0, j * (l_sensor + pad_sensor) / 2, 0])
+					hull() {
+						translate([cc_strut_slots / 2, 0, 0])
+							rotate([90, 0, 0])
+								cylinder(r = d_sensor_threaded_rod / 2 + 4, h = pad_sensor, center = true);
+				
+							translate([(l_light_path - t_light_source_mount / 2) / 2, 0, offset_sensor - (w_sensor + 2 * pad_sensor + 3 * l_light_path * w_slot / t_sensor_mount) / 2 + 0.5])
+								cube([t_light_source_mount, pad_sensor, 1], center = true);
+
+							translate([cc_strut_slots / 2 - d_sensor_threaded_rod / 2 - 2, 0, offset_sensor])
+								cube([4, pad_sensor, 1], center = true);
+					}
+
+			for (i = [-1, 1])
+				translate([i * cc_strut_slots / 2, 0, 0])
+					rotate([90, 0, 0])
+						cylinder(r = d_sensor_threaded_rod / 2 + 4, h = l_sensor + 2 * pad_sensor, center = true);
+
+			translate([0, 0, offset_sensor])
+				difference() {
+					hull() {
+						translate([-(l_light_path + t_sensor) / 2, 0, 0])
+							cube([0.05, l_sensor + 2 * pad_sensor, w_sensor + 2 * pad_sensor], center = true);
+			
+						translate([(l_light_path + t_sensor) / 2, 0, 0])
+							cube([0.05, l_sensor + 2 * pad_sensor, w_sensor + 2 * pad_sensor + 3 * l_light_path * w_slot / t_sensor_mount], center = true);
+					}
+		
+					translate([t_sensor_mount - t_light_source_mount, 0, 0])
+						cube([l_light_path - t_sensor_mount - t_light_source_mount, l_sensor, w_sensor + 2 * pad_sensor + 3 * l_light_path * w_slot / t_sensor_mount], center = true);
+		
+					translate([-(l_light_path + t_sensor) / 2, 0, 0]) {
+						// sensor pocket
+						cube([2 * t_sensor, l_sensor, w_sensor], center = true);
+
+						translate([t_sensor_mount + t_sensor - 1, 0, offset_sensor_centerline]) {
+							// slot for light
+							cube([2 * t_sensor_mount, l_slot, w_slot], center = true);
+
+							// sensor mounting holes
+							for (i = [-1, 1])
+								translate([-t_sensor_mount, i * cc_sensor_mounts / 2, 0])
+									rotate([0, 90, 0, 0])
+										cylinder(r = d_sensor_mounts / 2, h = t_sensor_mount);
+							}
+					}
+		
+					// light source
+					translate([(l_light_path + t_sensor) / 2, 0, 0])
+						rotate([0, 90, 0]) {
+							translate([0, 0, 1])
+								cylinder(r = d_light_source / 2, h = t_light_source_mount, center = true);
+
+							cylinder(r = d_light_source_pinhole / 2, h = t_light_source_mount + 1, center = true);
+						}
+				}
+		}
+
+		// threaded rod openings
+		for (i = [-1, 1])
+			translate([i * cc_strut_slots / 2, 0, 0])
+				rotate([90, 0, 0])
+					cylinder(r = d_sensor_threaded_rod / 2, h = l_sensor + 2 * pad_sensor + 1, center = true);
+	}
 }

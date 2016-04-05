@@ -108,95 +108,6 @@ pad_light_source = 3;
 t_light_source_mount = 6;
 d_light_source_pinhole = 0.5;
 
-module sensor_mount() {
-	r_light_source_large = (l_sensor + 2 * pad_sensor) / 4 + 2; //d_light_source / 2 + pad_light_source + offset_sensor * sin(80) / 2;
-
-	difference() {
-		union() {
-			// bracket
-			for (j = [-1, 1])
-				translate([0, j * (l_sensor + 2 * pad_sensor - 6) / 2, 0])
-					hull()
-						for (i = [-1, 1])
-							translate([i * cc_strut_slots / 2, 0, 0])
-								rotate([90, 0, 0])
-									cylinder(r = d_sensor_threaded_rod / 2 + 4, h = 6, center = true);
-
-				for (i = [-1, 1])
-					translate([i * cc_strut_slots / 2, 0, 0])
-						rotate([90, 0, 0])
-							cylinder(r = d_sensor_threaded_rod / 2 + 4, h = l_sensor + 2 * pad_sensor, center = true);
-
-			// sensor mount
-			translate([-l_light_path / 2, 0, offset_sensor])
-				difference() {
-					cube([t_sensor_mount + t_sensor, l_sensor + 2 * pad_sensor, w_sensor + 2 * pad_sensor], center = true);
-
-					// sensor pocket
-					translate([-(t_sensor_mount + t_sensor) / 2, 0, 0])
-						cube([2 * t_sensor, l_sensor, w_sensor], center = true);
-
-					translate([0, 0, offset_sensor_centerline]) {
-						// slot for light
-						cube([2 * t_sensor_mount, l_slot, w_slot], center = true);
-
-						// mounting holes
-						for (i = [-1, 1])
-							translate([-1, i * cc_sensor_mounts / 2, 0])
-								rotate([0, 90, 0, 0])
-									cylinder(r = d_sensor_mounts / 2, h = t_sensor_mount, center = true);
-						}
-				}
-
-				// sensor mount bridge
-				for (i = [-1, 1])
-					translate([0, i * (l_sensor + 2 * pad_sensor - 6) / 2, 0])
-						hull() {
-							translate([-l_light_path / 2, 0, offset_sensor - (w_sensor + 2 * pad_sensor) / 2])
-								cube([t_sensor_mount + t_sensor, 6, 0.1], center = true);
-
-							translate([-cc_strut_slots / 2, 0, 0])
-								rotate([90, 0, 0])
-									cylinder(r = d_sensor_threaded_rod / 2 + 4, h = 6, center = true);
-						}
-
-				// light source mount
-					difference() {
-						union() {
-							hull() {
-								translate([l_light_path / 2 + 3 * t_light_source_mount / 8, 0, offset_sensor])
-									rotate([0, 90, 0])
-										cylinder(r = d_light_source / 2 + pad_light_source, h = t_light_source_mount / 4, center = true);
-
-										translate([cc_strut_slots / 2, d_light_source / 2 + pad_light_source - r_light_source_large, 0])
-											cube([t_light_source_mount, r_light_source_large * 2, 0.1], center = true);
-							}
-
-							translate([l_light_path / 2, 0, offset_sensor])
-								rotate([0, 90, 0])
-									cylinder(r = d_light_source / 2 + pad_light_source, h = t_light_source_mount, center = true);
-						}
-
-						translate([l_light_path / 2, 0, offset_sensor])
-							rotate([0, 90, 0]) {
-								translate([0, 0, 1])
-									cylinder(r = d_light_source / 2, h = t_light_source_mount, center = true);
-
-								cylinder(r = d_light_source_pinhole / 2, h = t_light_source_mount + 1, center = true);
-							}
-				}
-			}
-
-					// threaded rod openings
-					for (i = [-1, 1])
-						translate([i * cc_strut_slots / 2, 0, 0])
-							rotate([90, 0, 0])
-								cylinder(r = d_sensor_threaded_rod / 2, h = l_sensor + 2 * pad_sensor + 1, center = true);
-		}
-}
-
-
-
 // main board dimensions
 l_main_board = 71;
 w_main_board = 44;
@@ -285,7 +196,94 @@ pitch_spool_threads = 6;
 d_spool_threads = d_small_cone - 6;
 
 cp = fit_spur_gears(n1 = n_teeth_small, n2 = n_teeth_large, spacing = spool_drive_cc);
-echo(cp);
+r_spool_magnet_circle = outer_radius(teeth = n_teeth_large, circular_pitch = cp) - d_magnet / 2 - 4;
+
+module sensor_mount() {
+	r_light_source_large = (l_sensor + 2 * pad_sensor) / 4 + 2; //d_light_source / 2 + pad_light_source + offset_sensor * sin(80) / 2;
+	
+	difference() {
+		union() {
+			// bracket
+			for (j = [-1, 1])
+				translate([0, j * (l_sensor + 2 * pad_sensor - 6) / 2, 0])
+					hull()
+						for (i = [-1, 1])
+							translate([i * cc_strut_slots / 2, 0, 0])
+								rotate([90, 0, 0])
+									cylinder(r = d_sensor_threaded_rod / 2 + 4, h = 6, center = true);
+
+				for (i = [-1, 1])
+					translate([i * cc_strut_slots / 2, 0, 0])
+						rotate([90, 0, 0])
+							cylinder(r = d_sensor_threaded_rod / 2 + 4, h = l_sensor + 2 * pad_sensor, center = true);
+
+			// sensor mount
+			translate([-l_light_path / 2, 0, offset_sensor])
+				difference() {
+					cube([t_sensor_mount + t_sensor, l_sensor + 2 * pad_sensor, w_sensor + 2 * pad_sensor], center = true);
+
+					// sensor pocket
+					translate([-(t_sensor_mount + t_sensor) / 2, 0, 0])
+						cube([2 * t_sensor, l_sensor, w_sensor], center = true);
+
+					translate([0, 0, offset_sensor_centerline]) {
+						// slot for light
+						cube([2 * t_sensor_mount, l_slot, w_slot], center = true);
+
+						// mounting holes
+						for (i = [-1, 1])
+							translate([-1, i * cc_sensor_mounts / 2, 0])
+								rotate([0, 90, 0, 0])
+									cylinder(r = d_sensor_mounts / 2, h = t_sensor_mount, center = true);
+						}
+				}
+
+				// sensor mount bridge
+				for (i = [-1, 1])
+					translate([0, i * (l_sensor + 2 * pad_sensor - 6) / 2, 0])
+						hull() {
+							translate([-l_light_path / 2, 0, offset_sensor - (w_sensor + 2 * pad_sensor) / 2])
+								cube([t_sensor_mount + t_sensor, 6, 0.1], center = true);
+
+							translate([-cc_strut_slots / 2, 0, 0])
+								rotate([90, 0, 0])
+									cylinder(r = d_sensor_threaded_rod / 2 + 4, h = 6, center = true);
+						}
+
+				// light source mount
+					difference() {
+						union() {
+							hull() {
+								translate([l_light_path / 2 + 3 * t_light_source_mount / 8, 0, offset_sensor])
+									rotate([0, 90, 0])
+										cylinder(r = d_light_source / 2 + pad_light_source, h = t_light_source_mount / 4, center = true);
+
+										translate([cc_strut_slots / 2, d_light_source / 2 + pad_light_source - r_light_source_large, 0])
+											cube([t_light_source_mount, r_light_source_large * 2, 0.1], center = true);
+							}
+
+							translate([l_light_path / 2, 0, offset_sensor])
+								rotate([0, 90, 0])
+									cylinder(r = d_light_source / 2 + pad_light_source, h = t_light_source_mount, center = true);
+						}
+
+						translate([l_light_path / 2, 0, offset_sensor])
+							rotate([0, 90, 0]) {
+								translate([0, 0, 1])
+									cylinder(r = d_light_source / 2, h = t_light_source_mount, center = true);
+
+								cylinder(r = d_light_source_pinhole / 2, h = t_light_source_mount + 1, center = true);
+							}
+				}
+			}
+
+					// threaded rod openings
+					for (i = [-1, 1])
+						translate([i * cc_strut_slots / 2, 0, 0])
+							rotate([90, 0, 0])
+								cylinder(r = d_sensor_threaded_rod / 2, h = l_sensor + 2 * pad_sensor + 1, center = true);
+		}
+}
 
 module qc_length_rotor() {
 	d_rotor = (d_M5_nut > d_magnet) ? d_M5_nut + 2 : d_magnet + 2;
@@ -1093,23 +1091,26 @@ module filament_guide() {
 		hull() {
 			translate([-(qc_bearings[0] + id_tubing)/ 2, 0, -qc_bearings[2] / 2])
 				rotate([90, 0, 0])
-					cylinder(r = od_tubing / 2 + pad_tubing, h = 40, center = true);
+					hull()
+						for (i = [0, -1])
+							translate([0, i * qc_bearings[2], 0])
+								cylinder(r = od_tubing / 2 + pad_tubing, h = 40, center = true);
 
-					translate([0, 0, -qc_bearings[2] / 2])
-						cylinder(r = qc_bearings[0] / 2 - 1.5, h = od_tubing + 2 * pad_tubing, center = true);
+					translate([0, 0, -qc_bearings[2]])
+						cylinder(r = qc_bearings[0] / 2 + 2.5, h = od_tubing + 2 * pad_tubing + qc_bearings[2], center = true);
 		}
 
 		// nut relief
 		translate([-qc_bearings[0], 0, -2])
 			hull() {
-				cylinder(r = qc_bearings[0] / 2 + 0.5, h = od_tubing + 2 * pad_tubing + 2, center = true);
+				cylinder(r = qc_bearings[0] / 2 + 1, h = od_tubing + 2 * pad_tubing + 2, center = true);
 
 				translate([-20, 0, 0])
-					cylinder(r = qc_bearings[0] / 2 + 10, h = od_tubing + 2 * pad_tubing + 2, center = true);
+					cylinder(r = qc_bearings[0] / 2 + 15, h = od_tubing + 2 * pad_tubing + 2, center = true);
 			}
 
 		// filament path
-		translate([-(qc_bearings[0] + id_tubing)/ 2, 0, -qc_bearings[2] / 2])
+		translate([-(qc_bearings[0] + id_tubing)/ 2, 0, -qc_bearings[2]])
 			rotate([90, 0, 0]) {
 				hull()
 					for (i = [-qc_max_displacement / 2, qc_max_displacement / 2])
@@ -1128,22 +1129,21 @@ module filament_guide() {
 		cylinder(r = d_M5_screw / 2, h = 20, center = true);
 
 		// idler bearing
-		translate([0, 0, -10]) // change this position to alter where filament lands on bearings
+		translate([0, 0, -15]) // change this position to alter where filament lands on bearings
 			difference() {
-				rotate([0, 0, 18])
-					hull() {
-						cylinder(r = qc_bearings[0] / 2 + 0.5, h = 11);
+				hull() {
+					cylinder(r = qc_bearings[0] / 2 + 1, h = 16);
 
-						translate([-20, 0, 0])
-							cylinder(r = qc_bearings[0] / 2 + 5, h = 11);
-					}
+					translate([-20, 0, 0])
+						cylinder(r = 3 * qc_bearings[0] / 2, h = 16);
+				}
 
-				translate([0, 0, 11])
+				translate([0, 0, 16])
 					cylinder(r = qc_bearings[0] / 2 - 1.5, h = 2, center = true);
 			}
 		// clearance for pivot
-		translate([-15, -20.50, -8])
-			cube([10, 41, 10], center = true);
+//		translate([-15, -20.50, -8])
+//			cube([10, 41, 10], center = true);
 	}
 }
 
@@ -1225,7 +1225,7 @@ module gear_large() {
 							square([3, 3]);
 
 		// pocket for magnet
-		translate([outer_radius(teeth = n_teeth_large, circular_pitch = cp) - d_magnet / 2 - 4, 0, -1])
+		translate([r_spool_magnet_circle, 0, -1])
 			cylinder(r = d_magnet / 2, h = t_gear + 1);
 
 		// relief for 608zz
@@ -1310,6 +1310,12 @@ module spool_drive_bearing_block() {
 
 		translate([0, 0, 4])
 			cube([w_al_strip, od_608 + 6, 4], center = true);
+		
+		// pocket for hall effect switch
+		translate([0, 0, -3])
+			rotate_extrude(convexity = 10)
+				translate([r_spool_magnet_circle, 0, 0])
+					square([8, 3], center = true);
 	}
 }
 
