@@ -1,0 +1,294 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:sensor-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L ATTINY45-S IC1
+U 1 1 56FC495A
+P 2900 1850
+F 0 "IC1" H 1750 2250 50  0000 C CNN
+F 1 "ATTINY45-S" H 3900 1450 50  0000 C CNN
+F 2 "Housings_SOIC:SOIJ-8_5.3x5.3mm_Pitch1.27mm" H 3850 1850 50  0000 C CIN
+F 3 "" H 2900 1850 50  0000 C CNN
+	1    2900 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L TSL1406R O1
+U 1 1 56FC4E9C
+P 3050 3800
+F 0 "O1" H 3050 3050 60  0000 C CNN
+F 1 "TSL1406R" H 3050 4550 60  0000 C CNN
+F 2 "TSL1406R:TSL1406R" H 2650 3800 60  0001 C CNN
+F 3 "" H 2650 3800 60  0000 C CNN
+	1    3050 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_02X03 P1
+U 1 1 56FC4F3F
+P 4300 3200
+F 0 "P1" H 4300 3400 50  0000 C CNN
+F 1 "ICSP" H 4300 3000 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_2x03" H 4300 2000 50  0001 C CNN
+F 3 "" H 4300 2000 50  0000 C CNN
+	1    4300 3200
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 56FC4FB6
+P 4250 2100
+F 0 "#PWR01" H 4250 1850 50  0001 C CNN
+F 1 "GND" H 4250 1950 50  0000 C CNN
+F 2 "" H 4250 2100 50  0000 C CNN
+F 3 "" H 4250 2100 50  0000 C CNN
+	1    4250 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR02
+U 1 1 56FC4FD0
+P 4250 1600
+F 0 "#PWR02" H 4250 1450 50  0001 C CNN
+F 1 "VCC" H 4250 1750 50  0000 C CNN
+F 2 "" H 4250 1600 50  0000 C CNN
+F 3 "" H 4250 1600 50  0000 C CNN
+	1    4250 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR03
+U 1 1 56FC4FEA
+P 1750 4400
+F 0 "#PWR03" H 1750 4250 50  0001 C CNN
+F 1 "VCC" H 1750 4550 50  0000 C CNN
+F 2 "" H 1750 4400 50  0000 C CNN
+F 3 "" H 1750 4400 50  0000 C CNN
+	1    1750 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR04
+U 1 1 56FC5009
+P 1750 3600
+F 0 "#PWR04" H 1750 3350 50  0001 C CNN
+F 1 "GND" H 1750 3450 50  0000 C CNN
+F 2 "" H 1750 3600 50  0000 C CNN
+F 3 "" H 1750 3600 50  0000 C CNN
+	1    1750 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR05
+U 1 1 56FC5450
+P 1750 3200
+F 0 "#PWR05" H 1750 2950 50  0001 C CNN
+F 1 "GND" H 1750 3050 50  0000 C CNN
+F 2 "" H 1750 3200 50  0000 C CNN
+F 3 "" H 1750 3200 50  0000 C CNN
+	1    1750 3200
+	1    0    0    -1  
+$EndComp
+Text GLabel 2650 3500 0    60   Input ~ 0
+CLK
+Text GLabel 2650 4100 0    60   Input ~ 0
+CLK
+Text GLabel 1550 2000 0    60   Output ~ 0
+CLK
+Text GLabel 2150 3400 0    60   Input ~ 0
+MISO
+Text GLabel 2650 4000 0    60   Input ~ 0
+MISO
+Wire Wire Line
+	1750 4400 2650 4400
+Wire Wire Line
+	2650 3600 1750 3600
+Wire Wire Line
+	2650 3200 1750 3200
+Wire Wire Line
+	2650 3400 2150 3400
+Connection ~ 2550 3400
+Text GLabel 2650 3700 0    60   3State ~ 0
+AO
+Text GLabel 2650 4300 0    60   3State ~ 0
+AO
+Text GLabel 1550 1700 0    60   Output ~ 0
+MISO
+Text GLabel 1550 1900 0    60   3State ~ 0
+AO
+NoConn ~ 2650 4200
+Wire Wire Line
+	2650 3900 2550 3900
+Wire Wire Line
+	2550 3900 2550 3800
+Wire Wire Line
+	2550 3800 2650 3800
+Text GLabel 4050 3100 0    60   Input ~ 0
+MISO
+$Comp
+L VCC #PWR06
+U 1 1 56FC59B8
+P 4550 3100
+F 0 "#PWR06" H 4550 2950 50  0001 C CNN
+F 1 "VCC" H 4550 3250 50  0000 C CNN
+F 2 "" H 4550 3100 50  0000 C CNN
+F 3 "" H 4550 3100 50  0000 C CNN
+	1    4550 3100
+	1    0    0    -1  
+$EndComp
+Text GLabel 4050 3200 0    60   Input ~ 0
+SCK
+Text GLabel 4550 3200 2    60   Input ~ 0
+MOSI
+Text GLabel 4050 3300 0    60   Input ~ 0
+RESET
+$Comp
+L GND #PWR07
+U 1 1 56FC5A27
+P 4550 3300
+F 0 "#PWR07" H 4550 3050 50  0001 C CNN
+F 1 "GND" H 4550 3150 50  0000 C CNN
+F 2 "" H 4550 3300 50  0000 C CNN
+F 3 "" H 4550 3300 50  0000 C CNN
+	1    4550 3300
+	1    0    0    -1  
+$EndComp
+Text GLabel 1550 1600 0    60   Input ~ 0
+MOSI
+Text GLabel 1550 2100 0    60   Input ~ 0
+RESET
+Text GLabel 1550 1800 0    60   Input ~ 0
+SCK
+$Comp
+L CONN_01X02 P2
+U 1 1 56FC5D16
+P 4100 4150
+F 0 "P2" H 4100 4300 50  0000 C CNN
+F 1 "LED" V 4200 4150 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_1x02" H 4100 4150 50  0001 C CNN
+F 3 "" H 4100 4150 50  0000 C CNN
+	1    4100 4150
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR08
+U 1 1 56FC5DAE
+P 4450 5000
+F 0 "#PWR08" H 4450 4750 50  0001 C CNN
+F 1 "GND" H 4450 4850 50  0000 C CNN
+F 2 "" H 4450 5000 50  0000 C CNN
+F 3 "" H 4450 5000 50  0000 C CNN
+	1    4450 5000
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 56FC5DCE
+P 4300 4450
+F 0 "R1" V 4380 4450 50  0000 C CNN
+F 1 "R100" V 4300 4450 50  0000 C CNN
+F 2 "Resistors_SMD:R_1206" V 4230 4450 50  0001 C CNN
+F 3 "" H 4300 4450 50  0000 C CNN
+	1    4300 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L POT RV1
+U 1 1 56FC5E1A
+P 4300 4850
+F 0 "RV1" H 4300 4770 50  0000 C CNN
+F 1 "POT" H 4300 4850 50  0000 C CNN
+F 2 "Potentiometers:Potentiometer_Trimmer-Piher-PT15-h2-5_vertical" H 4300 4850 50  0001 C CNN
+F 3 "" H 4300 4850 50  0000 C CNN
+	1    4300 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4300 4600 4300 4700
+Wire Wire Line
+	4450 4850 4450 5000
+Wire Wire Line
+	4300 4300 4300 4200
+$Comp
+L VCC #PWR09
+U 1 1 56FC5ED5
+P 4300 4100
+F 0 "#PWR09" H 4300 3950 50  0001 C CNN
+F 1 "VCC" H 4300 4250 50  0000 C CNN
+F 2 "" H 4300 4100 50  0000 C CNN
+F 3 "" H 4300 4100 50  0000 C CNN
+	1    4300 4100
+	1    0    0    -1  
+$EndComp
+NoConn ~ 4150 4850
+Wire Wire Line
+	2650 3300 2550 3300
+Wire Wire Line
+	2550 3300 2550 3400
+$Comp
+L PWR_FLAG #FLG010
+U 1 1 570E2270
+P 2100 4400
+F 0 "#FLG010" H 2100 4495 50  0001 C CNN
+F 1 "PWR_FLAG" H 2100 4580 50  0000 C CNN
+F 2 "" H 2100 4400 50  0000 C CNN
+F 3 "" H 2100 4400 50  0000 C CNN
+	1    2100 4400
+	1    0    0    -1  
+$EndComp
+Connection ~ 2100 4400
+$Comp
+L PWR_FLAG #FLG011
+U 1 1 570E22BB
+P 2050 3600
+F 0 "#FLG011" H 2050 3695 50  0001 C CNN
+F 1 "PWR_FLAG" H 2050 3780 50  0000 C CNN
+F 2 "" H 2050 3600 50  0000 C CNN
+F 3 "" H 2050 3600 50  0000 C CNN
+	1    2050 3600
+	-1   0    0    1   
+$EndComp
+Connection ~ 2050 3600
+$EndSCHEMATC
