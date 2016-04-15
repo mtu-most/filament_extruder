@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 include<filament_extruder.scad>
 
-render_part(part_to_render = 99);
+render_part(part_to_render = 23);
 
 module render_part(part_to_render) {
 	if (part_to_render == 1) display_mount();
@@ -66,59 +66,10 @@ module render_part(part_to_render) {
 	
 	if (part_to_render == 22) trailer_bearing_block();
 	
-	if (part_to_render == 23) feed_chute();
+	if (part_to_render == 23) feed_chute(front = false);
 	
 	if (part_to_render == 24) jug_adapter();
 
 	if (part_to_render == 99) sandbox();
 }
 
-module sandbox() {
-	rotate([a_hopper, 0, 0])
-	difference() {
-			difference() {
-				hull() {
-					cylinder(r = od_pipe_engagement / 2, h = h_pipe_engagement, center = true);
-
-					translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
-						rotate([-a_hopper, 0, 0])
-							cylinder(r = d_hopper / 2 + pad_threads, h = h_threads);
-				}
-	
-				// barrel opening
-				cylinder(r = od_pipe / 2, h = h_pipe_engagement + 2 * z_offset_hopper, center = true);
-
-				// interior chute
-				hull() {
-					cylinder(r = l_gap / 2, h = h_gap, center = true);
-
-					translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
-						rotate([-a_hopper, 0, 0])
-							cylinder(r = d_hopper / 2 - 2, h = h_threads);
-				}
-
-				translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
-					rotate([-a_hopper, 0, 0])
-						translate([0, 0, 0.1])
-							metric_thread(diameter = d_hopper, pitch = pitch_hopper, length = h_threads, internal = true, n_starts = 1);
-//							cylinder(r = d_hopper / 2, h = h_threads);
-				
-				// screw two halves together
-				for (i = [-1, 1], j = [-1, 1])
-					translate([i * (od_pipe + od_pipe_engagement) / 4, 0, j * h_pipe_engagement / 3])
-						rotate([90, 0, 0]) {
-							translate([0, 0, -13])
-								cylinder(r = d_M3_screw / 2 - 0.16, h = 30);
-							
-							cylinder(r = d_M3_screw / 2 + 0.2, h = 20);
-
-							translate([0, 0, 5])
-								cylinder(r = d_M3_cap / 2 + 0.5, h = 16);
-							}
-			}
-		
-		translate([0, -40, 0])
-			cube([80, 80, 300], center = true);
-	}
-
-}

@@ -1678,92 +1678,65 @@ module trailer_bearing_block() {
 	}
 }
 
-module feed_chute() {
-	difference() {
-		union() {
+module feed_chute(front = false) {
+	if (front) {
+		rotate([a_hopper + 180, 0, 0])
 			difference() {
-				union() {
-					hull() {
-						cylinder(r = od_pipe_engagement / 2, h = h_pipe_engagement, center = true);
-
-						translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
-							cylinder(r = od_hopper_engagement / 2 + t_hopper_walls, h = h_pipe_engagement / 2, center = true);
-					}
-		//			translate([0, offset_hopper, -offset_hopper])
-		//				hull() {
-		//					cylinder(r = od_pipe_engagement / 2, h = h_pipe_engagement, center = true);
-			
-		//					translate([0, 30, 0])
-		//						cube([l_hopper_base, w_hopper_base, h_pipe_engagement], center = true);
-		//				}
-
-					translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4 + 4]) {
-						cylinder(r = od_hopper_engagement / 2 + t_hopper_walls, h = h_pipe_engagement / 2 + 8, center = true);
-
-						translate([0, (od_hopper_engagement / 2 + t_hopper_walls + 8) / 2, 0])		
-							cube([l_clamp, od_hopper_engagement / 2 + t_hopper_walls + 8, h_pipe_engagement / 2 + 8], center = true);
-					}
-					
-					translate([0, -od_pipe_engagement / 2, 0])
-						cube([l_clamp, od_hopper_engagement / 2 + t_hopper_walls, h_pipe_engagement], center = true);
-				
-	//				translate([0, -w_clamp / 2, 0])		
-	//					cube([l_clamp, w_clamp, h_pipe_engagement], center = true);
-			
-	//				translate([0, od_pipe_engagement / 2 + y_offset_hopper / 2 + 2, (z_offset_hopper - h_pipe_engagement / 2) / 2 - 2])
-	//					rotate([0, 90, 0])
-	//						cylinder(r = 8, h = l_clamp, center = true);
-				}
-	
-				cylinder(r = od_pipe / 2, h = h_pipe_engagement + 2 * z_offset_hopper, center = true);
-	
-		//		translate([0, offset_hopper, -offset_hopper])
-		//			hull() {
-		//				cylinder(r = l_gap / 2, h = h_gap, center = true);
-		
-		//				translate([0, 31, 0])
-		//					cube([l_hopper_base - 2 * pad_pipe, w_hopper_base + 1, h_gap], center = true);
-		//			}
-
+				feed_chute_body();
+				// interior chute
 				hull() {
 					cylinder(r = l_gap / 2, h = h_gap, center = true);
 
-					translate([0, y_offset_hopper, z_offset_hopper + h_gap / 4])
-						cylinder(r = od_hopper_engagement / 2, h = h_gap / 2, center = true);
+					translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
+						rotate([-a_hopper, 0, 0])
+							cylinder(r = d_hopper / 2 - 2, h = h_threads);
 				}
 
-				translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 2])
-					cylinder(r = od_hopper_engagement / 2, h = h_pipe_engagement, center = true);
-	
-				rotate([0, 90, 0])
-					for (i = [-1, 1])
-						translate([i * h_pipe_engagement / 3, -(od_pipe + pad_pipe) / 2 - 6, 0]) {
-							cylinder(r = d_M3_screw / 2, h = od_pipe_engagement, center = true);
-
-//							translate([0, 0, -pad_pipe - 7])
-//							cylinder(r = d_M3_nut / 2 + 0.5, h = 12);
-						}
-			
-					for (i = [-1, 1])
-						translate([0, y_offset_hopper + (od_hopper_engagement / 2 + t_hopper_walls + 8) / 2 + 7, z_offset_hopper + h_gap / 4 + i * h_pipe_engagement / 6 + 6])		
-							rotate([0, 90, 0])
-								cylinder(r = d_M3_screw / 2, h = l_clamp + 1, center = true);
-	
-	//				translate([0, od_pipe_engagement / 2 + y_offset_hopper / 2 + 3, (z_offset_hopper - h_pipe_engagement) / 2 - 3])
-	//					rotate([0, 90, 0])
-	//						cylinder(r = d_M3_screw / 2, h = l_clamp + 1, center = true);
+				translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
+					rotate([-a_hopper, 0, 0])
+						translate([0, 0, 0.1])
+							metric_thread(diameter = d_hopper, pitch = pitch_hopper, length = h_threads, internal = true, n_starts = 1);
+//							cylinder(r = d_hopper / 2, h = h_threads);
+		
+				translate([0, -40, 0])
+					cube([80, 80, 300], center = true);
 			}
-
-			// supports:
-	//		translate([0, 0, -h_pipe_engagement / 2])
-	//			cylinder(r = od_pipe_engagement / 2, h = 0.5);
-			
-	//		translate([0, y_offset_hopper, z_offset_hopper + (h_gap + 9) / 2 + 5 - 0.5 / 2])
-	//			cylinder(r = od_hopper_engagement / 2, h = 0.5, center = true);
-
+	}
+	else {
+		intersection() {
+			feed_chute_body();
+		
+			translate([0, -40, 0])
+				cube([80, 80, 300], center = true);
 		}
-	
-			translate([0, -(od_pipe_engagement + 3 * y_offset_hopper) / 2, -(h_pipe_engagement + 2 * z_offset_hopper) / 3])			
-				cube([od_pipe_engagement, od_pipe_engagement + 3 * y_offset_hopper, h_pipe_engagement + 2 * z_offset_hopper]);
+	}
+
+}
+
+module feed_chute_body() {
+	difference() {
+		hull() {
+			cylinder(r = od_pipe_engagement / 2, h = h_pipe_engagement, center = true);
+
+			translate([0, y_offset_hopper, z_offset_hopper + h_pipe_engagement / 4])
+				rotate([-a_hopper, 0, 0])
+					cylinder(r = d_hopper / 2 + pad_threads, h = h_threads);
+		}
+
+		// barrel opening
+		cylinder(r = od_pipe / 2, h = h_pipe_engagement + 2 * z_offset_hopper, center = true);
+
+		// screw two halves together
+		for (i = [-1, 1], j = [-1, 1])
+			translate([i * (od_pipe + od_pipe_engagement) / 4, 0, j * h_pipe_engagement / 3])
+				rotate([90, 0, 0]) {
+					translate([0, 0, -13])
+						cylinder(r = d_M3_screw / 2 - 0.16, h = 30);
+					
+					cylinder(r = d_M3_screw / 2 + 0.2, h = 20);
+
+					translate([0, 0, 5])
+						cylinder(r = d_M3_cap / 2 + 0.5, h = 16);
+					}
 	}
 }
