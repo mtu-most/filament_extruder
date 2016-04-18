@@ -1,0 +1,7 @@
+"Id";"Designator";"Package";"Quantity";"Designation";"Supplier and ref";
+1;"RV1";"Potentiometer_Trimmer-Bourne_TC33-X2";1;"POT";;;
+2;"O1";"TSL1406R";1;"TSL1406R";;;
+3;"IC1";"SOIJ-8_5.3x5.3mm_Pitch1.27mm";1;"ATTINY45-S";;;
+4;"P1";"Pin_Header_Angled_2x03";1;"ICSP";;;
+5;"P2";"Pin_Header_Angled_1x02";1;"LED";;;
+6;"R1";"R_1206";1;"R100";;;
