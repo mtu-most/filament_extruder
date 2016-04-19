@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+import websocketd
+import serial
+import sys
+from gi.repository import GObject
+import fcntl
+import os
+
+fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
+buffer = b''
+start = 0x55
+
+def dump(x):
+	return ' '.join('{:02x}'.format(b) for b in x)
+
+def data(*a):
+	global buffer
+	d = sys.stdin.buffer.read()
+	if len(d) == 0:
+		print('done')
+		sys.exit(0)
+	buffer += d
+	if buffer[0] != start:
+		if start in buffer:
+			buffer = buffer[buffer.index(start):]
+			print('cut buffer;', dump(buffer))
+		else:
+			print('cut buffer to 0:', dump(buffer))
+			buffer = b''
+			return True
+	if len(buffer) < 3:
+		return True
+	pixels = (buffer[1] & 0xff) | ((buffer[2] & 0xff) << 8)
+	if len(buffer) < pixels + 3:
+		#print('wait for more buffer:', dump(buffer))
+		return True
+	print('pixels:', pixels, dump(buffer))
+	server.broadcast.send_data([pixels, [x for x in buffer[3:3 + pixels]]])
+	buffer = buffer[3 + pixels:]
+	return True
+
+GObject.io_add_watch(sys.stdin.buffer, GObject.IO_IN | GObject.IO_HUP | GObject.IO_PRI, data)
+
+server = websocketd.RPChttpd(4567, None, tls = False, httpdirs = ('.',))
+
+websocketd.fgloop()
