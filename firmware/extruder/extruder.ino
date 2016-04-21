@@ -205,15 +205,14 @@ static float heater_output;
 static int raw_temp;
 static uint8_t force_heater = 0;
 static int T_KP = 10;	// %
-static int T_KI = 0;	// %
-static int T_KD = 0;	// %
+static int T_KI = 30;	// %
+static int T_KD = 200;	// %
 // These are used to limit the value of the I buffer.
 #define T_OP_MIN 0.
 #define T_OP_MAX 100.
 #define T_SAMPLE_TIME 1000  //ms
-static double T_sp, T_ip, T_op = 50;
+static double T_sp = 160, T_ip, T_op = 50;
 static PID T_PID(&T_ip, &T_op, &T_sp, T_KP, T_KI / 1000., T_KD, DIRECT);
-#define INITIAL_TEMP_TARGET 170
 #ifdef THERMOCOUPLE
 #define TEMP_A 1
 #define TEMP_B 0
@@ -240,15 +239,15 @@ static int last_hall_state = HIGH;
 #define GUIDE_TICKS_PER_PERIOD (uint16_t(GUIDE_PERIOD / GUIDE_TICK_TIME + .5))
 #define GUIDE_MIN_TICKS (uint16_t(GUIDE_MIN_TIME / GUIDE_TICK_TIME + .5))
 #define GUIDE_MAX_TICKS (uint16_t(GUIDE_MAX_TIME / GUIDE_TICK_TIME + .5))
-static double guide_min = -30;		// guide limiting positions.
-static double guide_max = 30;
+static double guide_min = -49;		// guide limiting positions.
+static double guide_max = -21;
 static int guide_direction = 1;		// direction  changes upon reaching min or max
 static double guide_current;		// current guide position
 static int guide_steps = 40;		// the number of increments for the guide to cover the range.
 static volatile uint8_t sensor = 0;
 static volatile uint8_t pixels;
 static uint8_t last_pixel = 0;
-#define CONST 2
+#define CONST 1
 // }}}
 // Auger motor. {{{
 #define MIN_TEMP 130
@@ -258,12 +257,12 @@ static int8_t force_winder = 0;	// -1 is auto, 0 is off, 1 is max.
 // }}}
 // QC. {{{
 static float diameter = 0;
-static int dia_slope = 10;	// This is divided by 10 on use.
-static int dia_intercept = 0.;	// This is divided by 10 on use.
+static float dia_slope = -514.12;
+static float dia_intercept = 1267.58;
 static int len_hall_state = HIGH;
 static int last_len_hall_state = HIGH;
-static unsigned total_length = 0;	// This is divided by 10 on use.
-static int len_step = 355;	// This is divided by 10 on use.
+static float total_length = 0;
+static float len_step = .0355;
 static unsigned long last_report;	// For limiting QC output to serial.
 // }}}
 
@@ -588,7 +587,7 @@ MenuItem(pid_i) {	// {{{
 	return ret;
 } // }}}
 MenuItem(pid_d) {	// {{{
-	int ret = edit_num(T_KD, "Derivative(s%/K)", 0, 200, false);
+	int ret = edit_num(T_KD, "Derivative(s%/K)", 0, 1000, false);
 	T_PID.SetTunings(T_KP, T_KI / 1000., T_KD);
 	return ret;
 } // }}}
@@ -632,21 +631,23 @@ MenuItem(qc_report) {	// {{{
 	lcd.print("mm     ");
 	lcd.setCursor(0, 1);
 	lcd.print("Length:");
-	lcd.print(total_length / 10.);
+	lcd.print(total_length);
 	lcd.print("m     ");
 	return WAIT;
 } // }}}
+#if 0
 MenuItem(qc_dia_slope) {	// {{{
-	return edit_num(dia_slope, "Dia Slope", -100, 100, true);
+	return edit_num(dia_slope, "Dia Slope", -1000, 1000, true);
 } // }}}
 MenuItem(qc_dia_intercept) {	// {{{
-	return edit_num(dia_intercept, "Dia Intercept", -100, 100, true);
+	return edit_num(dia_intercept, "Dia Intercept", -10000, 10000, true);
 } // }}}
 MenuItem(qc_len_step) {	// {{{
 	return edit_num(len_step, "Length Step", 0, 1000, true);
 } // }}}
 static Menu <5> qc_menu(	"QC"      , (char const *[]){"Report", "Dia Slope", "Dia Intercept", "Length Step", "Back"}, (action *[]){&qc_report, &qc_dia_slope, &qc_dia_intercept, &qc_len_step, &back});
 //				"........#170.5°C"
+#endif
 // }}}
 
 template <typename T> void save_item(int &addr, T const &item) {	// {{{
@@ -681,8 +682,13 @@ MenuItem(save) {	// {{{
 } // }}}
 static void load() { // {{{
 	int addr = 0;
-	if (EEPROM.read(addr++) != EEPROM_MAGIC)
+	int magic = EEPROM.read(addr++);
+	if (magic != EEPROM_MAGIC) {
+		Serial.print("Magic doesn't match; not loading settings (");
+		Serial.print(magic, 16);
+		Serial.println(")");
 		return;
+	}
 	load_item(addr, auger_on);
 	load_item(addr, T_KP);
 	load_item(addr, T_KI);
@@ -696,7 +702,7 @@ static void load() { // {{{
 	load_item(addr, dia_intercept);
 	load_item(addr, len_step);
 } // }}}
-static Menu <5> main_menu(	""        , (char const *[]){"Startup", "Heater", "Guide", "QC", "Save"}, (action *[]){&startup_menu, &temp_menu, &guide_menu, &qc_menu, &save});
+static Menu <5> main_menu(	""        , (char const *[]){"Startup", "Heater", "Guide", "QC", "Save"}, (action *[]){&startup_menu, &temp_menu, &guide_menu, &qc_report, &save});
 //				"........#170.5°C"
 // }}}
 // Heater. {{{
@@ -789,41 +795,61 @@ static void handle_serial() { // {{{
 			Serial.println("\tSteps for Full Range of Guide");
 
 			Serial.print("a=");
-			Serial.print(dia_slope / 10.);
+			Serial.print(dia_slope);
 			Serial.println("\tSlope of QC Diameter Calibration Fit");
 
 			Serial.print("b=");
-			Serial.print(dia_intercept / 10.);
+			Serial.print(dia_intercept);
 			Serial.println("\tOffset of QC Diameter Calibration Fit");
 
 			Serial.print("l=");
-			Serial.print(len_step / 10.);
+			Serial.print(len_step);
 			Serial.println("\tLength per QC Revolution");
 
 			Serial.print("L=");
-			Serial.print(total_length / 10.);
+			Serial.print(total_length);
 			Serial.println("\tTotal Length Since Startup");
 
 			return;
 		}
-		char var;
-		int v1, v2 = 0;
-		uint8_t n = sscanf(buffer, "%c=%de%d", &var, &v1, &v2);
-		if (n < 2) {
+		if (buffer[0] == 0 || buffer[1] != '=') {
 			Serial.println("Ignoring invalid command.");
 			return;
 		}
-		float value;
-		value = v1;
-		while (v2 > 0) {
-			v2 -= 1;
-			value *= 10;
+		char var = buffer[0];
+		float value = 0;
+		bool isNegative = false;
+		bool isFraction = false;
+		float fraction = 1.0;
+		uint8_t numpos = 2;
+		while (buffer[numpos] == ' ')
+			numpos += 1;
+		if (buffer[numpos] == '-') {
+			numpos += 1;
+			isNegative = true;
 		}
-		while (v2 < 0) {
-			v2 += 1;
-			value /= 10;
-			dbg("New value:", value);
+		while (true) {
+			if (!isFraction && buffer[numpos] == '.') {
+				isFraction = true;
+				numpos += 1;
+				continue;
+			}
+			if (buffer[numpos] < '0' || buffer[numpos] > '9')
+				break;
+			value = value * 10 + buffer[numpos] - '0';
+			if (isFraction)
+				fraction *= 0.1;
+			numpos += 1;
 		}
+		while (buffer[numpos] == ' ')
+			numpos += 1;
+		if (buffer[numpos] != 0)
+			Serial.println("Ignoring junk after command");
+		if (isNegative)
+			value = -value;
+		if (isFraction)
+			value *= fraction;
+
 		switch(var) {
 		case '*':
 			auger_on = value;
@@ -863,16 +889,16 @@ static void handle_serial() { // {{{
 			guide_steps = value;
 			break;
 		case 'a':
-			dia_slope = value * 10;
+			dia_slope = value;
 			break;
 		case 'b':
-			dia_intercept = value * 10;
+			dia_intercept = value;
 			break;
 		case 'l':
-			len_step = value * 10;
+			len_step = value;
 			break;
 		case 'L':
-			total_length = value * 10;
+			total_length = value;
 			break;
 		default:
 			Serial.println("Invalid variable");
@@ -911,7 +937,6 @@ void setup() { // {{{
 	pinMode(PIN_BUTTON, INPUT_PULLUP);
 	// Pin change interrupts are set up below.
 	// Heater.
-	T_sp = INITIAL_TEMP_TARGET;
 	T_PID.SetOutputLimits(T_OP_MIN, T_OP_MAX);
 	T_PID.SetSampleTime(T_SAMPLE_TIME);
 	T_PID.SetMode(1);
@@ -942,7 +967,7 @@ void setup() { // {{{
 	// Reset controls.
 	clicked = false;
 	delta = 0;
-	guide_current = (guide_min + guide_max) / 2;
+	guide_current = guide_min;
 	set_guide(guide_current);
 	last_report = millis();
 	dbg("setup done", "");
@@ -996,9 +1021,9 @@ void loop() { // {{{
 	update_len();
 	// Report once per second.
 	if (!sensor_sync_phase && now - last_report >= 1000) {
-		diameter = (analogRead(PIN_DIA) - dia_intercept / 10.) / (dia_slope / 10.);
+		diameter = (analogRead(PIN_DIA) - dia_intercept) / dia_slope;
 		if (send_status) {
-			Serial.print(total_length / 10.);
+			Serial.print(total_length);
 			Serial.print("\t");
 			Serial.print(diameter);
 			Serial.print("\t");

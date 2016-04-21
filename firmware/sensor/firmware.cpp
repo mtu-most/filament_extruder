@@ -33,6 +33,9 @@
 #define DELAY 100
 #define SHORT_DELAY 5
 
+// Uncomment the next line to send maximum pixel instead of index of lowest.
+//#define SEND_MAX
+
 #define CLK_PIN 4
 #define SI_PIN 1
 #define DO_PIN 0
@@ -117,6 +120,9 @@ ISR(TIMER1_COMPA_vect) {
 	int min_ao = 0x100;
 	int i = 0;
 	sum = 0;
+#ifdef SEND_MAX
+	int max_ao = -1;
+#endif
 	for (; i < SKIP; ++i)
 		pulse();
 	for (; i < HWPIXELS - SKIP; ++i) {
@@ -124,6 +130,10 @@ ISR(TIMER1_COMPA_vect) {
 			ADCSRA = adcsra | (1 << ADSC);
 			while (ADCSRA & (1 << ADSC)) {}
 			int ao = ADCH & 0xff;
+#ifdef SEND_MAX
+			if (ao > max_ao)
+				max_ao = ao;
+#endif
 			sum += ao;
 #ifndef DEBUG_MODE
 			if (ao < min_ao) {
@@ -139,8 +149,13 @@ ISR(TIMER1_COMPA_vect) {
 	}
 	for (; i < HWPIXELS; ++i)
 		pulse();
-	if (state == 0 && (true || min_ao < VALID_LIMIT)) {
-		current = min_idx;
+	if (state == 0) {
+#ifdef SEND_MAX
+		current = max_ao;
+#else
+		if (min_ao < VALID_LIMIT)
+			current = min_idx;
+#endif
 		state = 1;
 	}
 	else
